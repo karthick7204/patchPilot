@@ -4,13 +4,11 @@
   "description": "",
   "main": "dist/index.js",
   "type": "module",
-
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
     "dev": "concurrently -k \"npm run watch\" \"nodemon --watch dist dist/index.js\""
   },
-
   "repository": {
     "type": "git",
     "url": "git+https://github.com/karthick7204/patchPilot.git"
@@ -18,14 +16,15 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-
   "bugs": {
     "url": "https://github.com/karthick7204/patchPilot/issues"
   },
   "homepage": "https://github.com/karthick7204/patchPilot#readme",
-
   "dependencies": {
-    "express": "^5.2.1"
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "ngrok": "^5.0.0-beta.2",
+    "svix": "^1.84.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
