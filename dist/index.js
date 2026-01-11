@@ -6,11 +6,10 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 const port = parseInt(process.env.PORT || "3000");
-app.post("/jira", (req, res) => {
-    console.log("Jira webhook received");
+app.post("/linear", (req, res) => {
+    console.log("linear webhook received");
     const rawjson = req.body;
-    const payload = JSON.parse(rawjson.description);
-    console.log(payload.issue);
+    console.log(rawjson);
     res.status(200).send("OK");
 });
 app.listen(port, () => {
