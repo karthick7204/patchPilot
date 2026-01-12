@@ -1,35 +1,11 @@
- import crypto from "node:crypto";
  import express from "express";
  import dotenv from "dotenv";
+ import { verifySignature } from "../services/ticketVerification.js";
  dotenv.config();
- 
- const app = express();
- 
- const LINEAR_WEBHOOK_SECRET = process.env.LINEAR_WEBHOOK_SECRET;
 
- if (!LINEAR_WEBHOOK_SECRET) {
-   throw new Error("LINEAR_WEBHOOK_SECRET is not set");
- }
- //  Signature verification (same logic as Linear)
- function verifySignature(signature: string | undefined, rawBody: Buffer): boolean {
-   if (typeof signature !== "string") return false;
- 
-   if (!LINEAR_WEBHOOK_SECRET) {
-   throw new Error("LINEAR_WEBHOOK_SECRET is not set");
-   
-   }
-   const headerSignature = Buffer.from(signature, "hex");
- 
-   const computedSignature = crypto
-     .createHmac("sha256", LINEAR_WEBHOOK_SECRET)
-     .update(rawBody)
-     .digest();
- 
-   return crypto.timingSafeEqual(computedSignature, headerSignature);
- }
-
-
- export const linearWebhookHandler = app.post(
+ export function linearWebhookHandler (){
+    return[
+    
  express.json({
     verify: (req: any, _res, buf: Buffer) => {
       req.rawBody = buf;
@@ -62,4 +38,5 @@
       return res.sendStatus(500);
     }
   }
-);
+]
+}
