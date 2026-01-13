@@ -23,7 +23,7 @@ export function linearWebhookHandler() {
             }
             try {
                 console.log("Linear webhook verified");
-                console.log(req.body); // parsed JSON (safe to use now)
+                console.log(req.body);
                 return res.sendStatus(200);
             }
             catch (err) {
