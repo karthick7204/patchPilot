@@ -6,7 +6,7 @@ import { rmSync, existsSync, mkdirSync } from 'node:fs'; // Added rmSync
 // ... rest of imports
 
 export async function handleLinearTask(issueId: string, repoUrl: string): Promise<string> {
-    const GITHUB_TOKEN = process.env.GITHUB_TOKEN || "your_token_here";
+    const GITHUB_TOKEN = process.env.GITHUB_TOKEN ;
     const rootDir = 'C:/mcp-workspace'; 
     const tempPath = path.resolve(rootDir, issueId);
 
