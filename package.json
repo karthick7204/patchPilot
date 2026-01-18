@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "dev": "concurrently -k \"npm run watch\" \"nodemon --watch dist dist/index.js\""
+    "dev": "concurrently -k \"npm run watch\" \"nodemon --inspect --watch dist dist/index.js\""
   },
   "repository": {
     "type": "git",
@@ -21,12 +21,14 @@
   },
   "homepage": "https://github.com/karthick7204/patchPilot#readme",
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.2",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "ngrok": "^5.0.0-beta.2",
     "svix": "^1.84.1"
   },
   "devDependencies": {
+    "@modelcontextprotocol/inspector": "^0.18.0",
     "@types/express": "^5.0.6",
     "@types/node": "^20.11.0",
     "concurrently": "^9.2.1",

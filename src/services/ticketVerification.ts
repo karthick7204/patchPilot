@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import dotenv from "dotenv";
-dotenv.config();
+  dotenv.config();
   
   const LINEAR_WEBHOOK_SECRET = process.env.LINEAR_WEBHOOK_SECRET;
  

@@ -6,5 +6,3 @@ const ticketRouter = Router();
 
 
 export const getTicket = ticketRouter.post("/linear",linearWebhookHandler());
-
- 

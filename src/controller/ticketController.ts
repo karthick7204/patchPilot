@@ -1,9 +1,19 @@
  import express from "express";
  import dotenv from "dotenv";
  import { verifySignature } from "../services/ticketVerification.js";
+ import { handleLinearTask } from "../mcp/git_clone.js";
  dotenv.config();
 
  export function linearWebhookHandler (){
+
+  function extractGitHubUrl(description: string): string | null {
+    // Regex to find a GitHub URL within brackets or plain text
+    const githubRegex = /https:\/\/github\.com\/[\w\-\.]+\/[\w\-\.]+/i;
+    
+    const match = description.match(githubRegex);
+    
+    return match ? match[0] : null;
+  }
     return[
     
  express.json({
@@ -12,7 +22,7 @@
     },
   }),
 
-  (req: any, res:any) => {
+  async (req: any, res:any) => {
     const signature = req.get("linear-signature");
 
     //  Verify signature using RAW body
@@ -29,8 +39,19 @@
 
     try {
       console.log("Linear webhook verified");
-      console.log(req.body); 
+      console.log(" Processing issue:", req.body.data.id);
+      console.log("description:", req.body.data.description);
 
+      const description = req.body.data.description; 
+     
+      const repoUrl = extractGitHubUrl(description);
+
+      if (repoUrl) {
+       console.log("Extracted Repo URL:", repoUrl);
+       await handleLinearTask(req.body.data.id, repoUrl);
+      } else{
+      console.error(" No GitHub link is null.");
+      }
 
       return res.sendStatus(200);
     } catch (err) {
