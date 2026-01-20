@@ -25,6 +25,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "ngrok": "^5.0.0-beta.2",
+    "simple-git": "^3.30.0",
     "svix": "^1.84.1"
   },
   "devDependencies": {
