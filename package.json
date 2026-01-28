@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/karthick7204/patchPilot#readme",
   "dependencies": {
+    "@google/genai": "^1.38.0",
     "@modelcontextprotocol/sdk": "^1.25.2",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",

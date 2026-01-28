@@ -23,7 +23,8 @@ export async function handleLinearTask(issueId, repoUrl) {
     // This runs in YOUR process, so it inherits YOUR path automatically.
     try {
         const git = simpleGit();
-        await git.clone(authenticatedUrl, tempPath);
+        const result = await git.clone(authenticatedUrl, tempPath);
+        console.log("Clone result:", result);
         console.log("✅ Clone Successful!");
         return tempPath;
     }
