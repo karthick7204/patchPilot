@@ -1,9 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
-
 // Initialize Gemini (Ensure GOOGLE_API_KEY is in your .env)
 const genai = new GoogleGenAI({});
-
-export async function identifyTargetFile(issueTitle: string, issueDesc: string, fileList: string[]): Promise<string> {
+export async function identifyTargetFile(issueTitle, issueDesc, fileList) {
     const prompt = `
     You are a senior backend developer.
     
@@ -22,10 +20,9 @@ export async function identifyTargetFile(issueTitle: string, issueDesc: string, 
     2. Do not invent files. Pick strictly from the list.
     3. If multiple files are relevant, pick the main controller or entry point.
     `;
-
     const result = await genai.models.generateContent({ model: "gemini-3-flash-preview", contents: [{ role: "user", parts: [{ text: prompt }] }] });
     const response = result.text;
-    
     // Clean up response (remove markdown or whitespace)
     return response?.replace(/```/g, '').trim() || '';
 }
+//# sourceMappingURL=FindFile_LLM.js.map

@@ -18,6 +18,6 @@ export async function getFiles(dir: string, baseDir = dir): Promise<string[]> {
       results.push(path.relative(baseDir, filePath));
     }
   }
-
+  
   return results;
 }

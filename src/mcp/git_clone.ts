@@ -2,9 +2,10 @@ import { mkdirSync, existsSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import * as simpleGitPkg from 'simple-git';
 import { searchAndReadFile } from './search.js';
+import {identifyTargetFile} from './FindFile_LLM.js';
 const simpleGit = simpleGitPkg.simpleGit; // Extract the function explicitly
 
-export async function handleLinearTask(issueId: string, repoUrl: string): Promise<string> {
+export async function handleLinearTask(issueId: string, repoUrl: string , description: string , title : string): Promise<string> {
     const rootDir = 'C:/mcp-workspace';
     const tempPath = path.resolve(rootDir, issueId);
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
@@ -32,7 +33,7 @@ export async function handleLinearTask(issueId: string, repoUrl: string): Promis
         console.log("Clone result:", result);
         
         console.log(" Clone Successful!");
-        await searchAndReadFile(tempPath);
+        await searchAndReadFile(tempPath,description,title);
         return tempPath;
     } catch (error) {
         console.error(" Clone failed:", error);
