@@ -26,6 +26,5 @@ export async function identifyTargetFile(issueTitle: string, issueDesc: string, 
     const result = await genai.models.generateContent({ model: "gemini-3-flash-preview", contents: [{ role: "user", parts: [{ text: prompt }] }] });
     const response = result.text;
     
-    // Clean up response (remove markdown or whitespace)
     return response?.replace(/```/g, '').trim() || '';
 }
