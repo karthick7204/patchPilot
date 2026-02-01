@@ -25,7 +25,10 @@ OUTPUT RULES:
             model: "gemini-3-flash-preview",
             contents: prompt,
         });
-        const text = result.text();
+        // if(result === null){
+        //   throw new Error("Gemini returned null response");
+        // }
+        const text = result.text;
         if (!text) {
             throw new Error("Gemini returned empty response");
         }

@@ -35,7 +35,8 @@ export async function searchAndReadFile(folderPath: string,description:string, t
     const codeFix = await generateFix(title, description, code);
 
     console.log("File Content Retrieved!");
-    console.log(`this is the file content from search.ts file: ${code}`); 
+    console.log(`this is the file code from search.ts file: ${code}`); 
+    console.log(`this is the fixed code from search.ts file: ${codeFix}`);
     
     return result;
 }
