@@ -18,7 +18,7 @@ export async function searchAndReadFile(folderPath: string,description:string, t
     const client = new Client({ name: "fs-worker", version: "1.0.0" }, { capabilities: {} });
     await client.connect(transport);
 
-    console.log("Scanning project structure...");
+    console.log("Scanning project structure...");//thsi for scanning
 
     const filestructure = await getFiles(folderPath)
     const targetFile = await identifyTargetFile(title, description, filestructure);
