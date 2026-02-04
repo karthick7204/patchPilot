@@ -3,6 +3,7 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import { getFiles } from "./getFileTree.js";
 import {identifyTargetFile} from "./FindFile_LLM.js";
 import {generateFix} from "./FixCode_LLM.js";
+import { pushToNewBranch } from "./gitManager.js";
 
 export async function searchAndReadFile(folderPath: string,description:string, title:string)   {
     
@@ -18,7 +19,7 @@ export async function searchAndReadFile(folderPath: string,description:string, t
     const client = new Client({ name: "fs-worker", version: "1.0.0" }, { capabilities: {} });
     await client.connect(transport);
 
-    console.log("Scanning project structure...");//thsi for scanning
+    console.log("Scanning project structure...");
 
     const filestructure = await getFiles(folderPath)
     const targetFile = await identifyTargetFile(title, description, filestructure);
@@ -33,6 +34,22 @@ export async function searchAndReadFile(folderPath: string,description:string, t
     // @ts-ignore
     const code = result.content[0].text
     const codeFix = await generateFix(title, description, code);
+
+    console.log("--------------- GIT AUTOMATION ----------------");
+    
+    try {
+        const branchName = await pushToNewBranch(folderPath, title);
+        
+        console.log("-----------------------------------------------");
+        console.log("TASK COMPLETE!");
+        console.log(`Please review the fix on branch: [ ${branchName} ]`);
+        console.log("-----------------------------------------------");
+        
+        return branchName;
+    } catch (error) {
+        console.log("Fix was saved locally, but Git Push failed.");
+        console.log("You may need to log in to Git on this machine.");
+    }
 
     console.log("File Content Retrieved!");
     console.log(`this is the file code from search.ts file: ${code}`); 
