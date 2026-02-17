@@ -3,6 +3,7 @@ import path from 'node:path';
 import * as simpleGitPkg from 'simple-git';
 import { searchAndReadFile } from './search.js';
 import { identifyTargetFile } from './FindFile_LLM.js';
+import { pushToNewBranch } from './gitManager.js';
 const simpleGit = simpleGitPkg.simpleGit; // Extract the function explicitly
 export async function handleLinearTask(issueId, repoUrl, description, title) {
     const rootDir = 'C:/mcp-workspace';
@@ -28,7 +29,8 @@ export async function handleLinearTask(issueId, repoUrl, description, title) {
         const result = await git.clone(authenticatedUrl, tempPath);
         console.log("Clone result:", result);
         console.log(" Clone Successful!");
-        await searchAndReadFile(tempPath, description, title);
+        const repourl = repoUrl;
+        await searchAndReadFile(tempPath, description, title, repourl);
         return tempPath;
     }
     catch (error) {

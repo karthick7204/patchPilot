@@ -44,17 +44,17 @@
 
       const description = req.body.data.description; 
       const title = req.body.data.title;
-     
+      
       const repoUrl = extractGitHubUrl(description);
       
       if (repoUrl) {
        console.log("Extracted Repo URL:", repoUrl);
        await handleLinearTask(req.body.data.id, repoUrl , description, title);
+
        console.log(`this is from the ticketcontroller ${req.body.data.description}`);
       } else{
       console.error(" No GitHub link is null.");
       }
-
       return res.sendStatus(200);
     } catch (err) {
       console.error(" Error processing webhook:", err);

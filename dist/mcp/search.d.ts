@@ -1,4 +1,4 @@
-export declare function searchAndReadFile(folderPath: string, description: string, title: string): Promise<{
+export declare function searchAndReadFile(folderPath: string, description: string, title: string, repourl: string): Promise<string | {
     [x: string]: unknown;
     content: ({
         type: "text";

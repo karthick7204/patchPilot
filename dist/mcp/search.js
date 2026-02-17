@@ -3,7 +3,9 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import { getFiles } from "./getFileTree.js";
 import { identifyTargetFile } from "./FindFile_LLM.js";
 import { generateFix } from "./FixCode_LLM.js";
-export async function searchAndReadFile(folderPath, description, title) {
+import { pushToNewBranch } from "./gitManager.js";
+import { writeCode } from "./writeCode.js";
+export async function searchAndReadFile(folderPath, description, title, repourl) {
     const transport = new StdioClientTransport({
         command: "npx.cmd",
         args: [
@@ -27,6 +29,20 @@ export async function searchAndReadFile(folderPath, description, title) {
     // @ts-ignore
     const code = result.content[0].text;
     const codeFix = await generateFix(title, description, code);
+    await writeCode(folderPath, targetFile, codeFix);
+    console.log("--------------- GIT AUTOMATION ----------------");
+    try {
+        const branchName = await pushToNewBranch(folderPath, title, repourl);
+        console.log("-----------------------------------------------");
+        console.log("TASK COMPLETE!");
+        console.log(`Please review the fix on branch: [ ${branchName} ]`);
+        console.log("-----------------------------------------------");
+        return branchName;
+    }
+    catch (error) {
+        console.log("Fix was saved locally, but Git Push failed.");
+        console.log("You may need to log in to Git on this machine.");
+    }
     console.log("File Content Retrieved!");
     console.log(`this is the file code from search.ts file: ${code}`);
     console.log(`this is the fixed code from search.ts file: ${codeFix}`);

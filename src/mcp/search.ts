@@ -4,8 +4,9 @@ import { getFiles } from "./getFileTree.js";
 import {identifyTargetFile} from "./FindFile_LLM.js";
 import {generateFix} from "./FixCode_LLM.js";
 import { pushToNewBranch } from "./gitManager.js";
+import { writeCode } from "./writeCode.js";
 
-export async function searchAndReadFile(folderPath: string,description:string, title:string)   {
+export async function searchAndReadFile(folderPath: string,description:string, title:string,repourl:string){
     
     const transport = new StdioClientTransport({
         command: "npx.cmd", 
@@ -32,13 +33,15 @@ export async function searchAndReadFile(folderPath: string,description:string, t
         }
     });
     // @ts-ignore
-    const code = result.content[0].text
+    const code = result.content[0].text;
     const codeFix = await generateFix(title, description, code);
-
-    console.log("--------------- GIT AUTOMATION ----------------");
+    await writeCode(folderPath, targetFile, codeFix);
     
+    console.log("--------------- GIT AUTOMATION ----------------");
+
     try {
-        const branchName = await pushToNewBranch(folderPath, title);
+        
+        const branchName = await pushToNewBranch(folderPath, title , repourl);
         
         console.log("-----------------------------------------------");
         console.log("TASK COMPLETE!");
@@ -46,6 +49,7 @@ export async function searchAndReadFile(folderPath: string,description:string, t
         console.log("-----------------------------------------------");
         
         return branchName;
+
     } catch (error) {
         console.log("Fix was saved locally, but Git Push failed.");
         console.log("You may need to log in to Git on this machine.");
