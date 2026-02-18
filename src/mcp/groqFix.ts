@@ -1,12 +1,14 @@
-import { GoogleGenAI } from "@google/genai";
+import OpenAI from "openai";
 import dotenv from "dotenv";
+
 dotenv.config();
 
-const genai = new GoogleGenAI({})
+const groq = new OpenAI({
+  apiKey: process.env.grok_api_key,
+  baseURL: "https://api.groq.com/openai/v1",
+});
 
-///const model = genai.getModel({ model: "gemini-1.5-flash-001" });
-
-export async function generateFix(
+export async function groqFixCode(
   issueTitle: string,
   issueDesc: string,
   currentCode: string
@@ -32,17 +34,18 @@ OUTPUT RULES:
 `;
 
   try {
-    const result = await genai.models.generateContent({
-              model: "gemini-3-flash-preview",
-              contents: prompt,    
+    const response = await groq.chat.completions.create({
+      model: "openai/gpt-oss-20b",   // Best coding model on Groq
+      messages: [
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.2,
     });
-    // if(result === null){
-    //   throw new Error("Gemini returned null response");
-    // }
-    const text = result.text;
+
+    const text = response.choices?.[0]?.message?.content;
 
     if (!text) {
-      throw new Error("Gemini returned empty response");
+      throw new Error("Groq returned empty response");
     }
 
     return text
@@ -51,7 +54,7 @@ OUTPUT RULES:
       .trim();
 
   } catch (error) {
-    console.error("AI failed to generate a fix:", error);
+    console.error("Groq AI failed:", error);
     throw error;
   }
 }

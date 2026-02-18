@@ -1,10 +1,12 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { getFiles } from "./getFileTree.js";
-import { identifyTargetFile } from "./FindFile_LLM.js";
-import { generateFix } from "./FixCode_LLM.js";
+//import {identifyTargetFile} from "./FindFile_LLM.js";
+import { identifyTargetFileGroq } from "./findFileGroq.js";
+//import {generateFix} from "./FixCode_LLM.js";
 import { pushToNewBranch } from "./gitManager.js";
 import { writeCode } from "./writeCode.js";
+import { groqFixCode } from "./groqFix.js";
 export async function searchAndReadFile(folderPath, description, title, repourl) {
     const transport = new StdioClientTransport({
         command: "npx.cmd",
@@ -18,7 +20,7 @@ export async function searchAndReadFile(folderPath, description, title, repourl)
     await client.connect(transport);
     console.log("Scanning project structure...");
     const filestructure = await getFiles(folderPath);
-    const targetFile = await identifyTargetFile(title, description, filestructure);
+    const targetFile = await identifyTargetFileGroq(title, description, filestructure);
     console.log(`Reading ${targetFile}...`);
     const result = await client.callTool({
         name: "read_file",
@@ -28,7 +30,7 @@ export async function searchAndReadFile(folderPath, description, title, repourl)
     });
     // @ts-ignore
     const code = result.content[0].text;
-    const codeFix = await generateFix(title, description, code);
+    const codeFix = await groqFixCode(title, description, code);
     await writeCode(folderPath, targetFile, codeFix);
     console.log("--------------- GIT AUTOMATION ----------------");
     try {
@@ -46,6 +48,6 @@ export async function searchAndReadFile(folderPath, description, title, repourl)
     console.log("File Content Retrieved!");
     console.log(`this is the file code from search.ts file: ${code}`);
     console.log(`this is the fixed code from search.ts file: ${codeFix}`);
-    return result;
+    return codeFix;
 }
 //# sourceMappingURL=search.js.map

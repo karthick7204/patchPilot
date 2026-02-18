@@ -1,4 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
+import dotenv from "dotenv";
+dotenv.config();
 const genai = new GoogleGenAI({});
 ///const model = genai.getModel({ model: "gemini-1.5-flash-001" });
 export async function generateFix(issueTitle, issueDesc, currentCode) {
