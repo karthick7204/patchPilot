@@ -16,10 +16,8 @@ import { cn } from "@/lib/utils";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", id: "dashboard" },
-  { icon: Rocket, label: "Deployments", id: "deployments" },
-  { icon: Puzzle, label: "Integrations", id: "integrations" },
   { icon: Sparkles, label: "AI Fixes", id: "ai-fixes" },
-  { icon: Terminal, label: "Logs", id: "logs" },
+  { icon: Puzzle, label: "Integrations", id: "integrations" },
 ];
 
 export function Sidebar({ activeTab = "dashboard", onTabChange }: { activeTab?: string, onTabChange?: (tab: string) => void }) {
@@ -60,11 +58,7 @@ export function Sidebar({ activeTab = "dashboard", onTabChange }: { activeTab?: 
       </nav>
 
       <div className="mt-auto px-1 space-y-8">
-        <button className="w-full flex items-center justify-center gap-2 py-4 bg-blue-500 text-white rounded-2xl font-black text-sm tracking-widest uppercase hover:bg-blue-400 transition-all shadow-[0_0_30px_rgba(59,130,246,0.2)] active:scale-95 cursor-pointer group">
-           <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-           New Patch
-        </button>
-
+      
         <div className="space-y-4 pt-6 border-t border-white/5">
            <div className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 rounded-xl cursor-pointer transition-colors group">
               <Activity className="w-4 h-4 text-zinc-600 group-hover:text-emerald-500 transition-colors" />

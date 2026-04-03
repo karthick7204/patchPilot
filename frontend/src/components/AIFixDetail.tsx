@@ -2,7 +2,6 @@
 
 import React from "react";
 import { DiffViewer } from "@/components/DiffViewer";
-import { AIExplanation } from "@/components/AIExplanation";
 import { ActionBar } from "@/components/ActionBar";
 import { motion } from "framer-motion";
 
@@ -41,14 +40,7 @@ export function AIFixDetail() {
           <DiffViewer />
         </motion.div>
         
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          className="w-full xl:w-auto"
-        >
-          <AIExplanation />
-        </motion.div>
+
       </div>
 
       <motion.div

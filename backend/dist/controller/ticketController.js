@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import { verifySignature } from "../services/ticketVerification.js";
 import { handleLinearTask } from "../mcp/git_clone.js";
+import Issue from "../models/Issue.js";
 dotenv.config();
 export function linearWebhookHandler() {
     function extractGitHubUrl(description) {
@@ -37,11 +38,18 @@ export function linearWebhookHandler() {
                 const repoUrl = extractGitHubUrl(description);
                 if (repoUrl) {
                     console.log("Extracted Repo URL:", repoUrl);
+                    //this is for the database
+                    const issue = new Issue({
+                        name: title,
+                        description: description,
+                        githubLink: repoUrl,
+                    });
+                    await issue.save();
                     await handleLinearTask(req.body.data.id, repoUrl, description, title);
                     console.log(`this is from the ticketcontroller ${req.body.data.description}`);
                 }
                 else {
-                    console.error(" No GitHub link is null.");
+                    console.error(" No GitHub link found in the description.");
                 }
                 return res.sendStatus(200);
             }
