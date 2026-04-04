@@ -1,11 +1,14 @@
 import express from "express";
+import cors from "cors";
 import dotenv from "dotenv";
 import { getTicket } from "./routes/getTicket.js";
+import githubTokenRouter from "./routes/githubTokenRoute.js";
 import { startMcp } from "./mcp/server.js";
 import mongoose from "mongoose";
 dotenv.config();
 
 const app = express();
+app.use(cors());
 const port = Number(process.env.PORT || 3001);
 
 const connectDB = async () => {
@@ -24,7 +27,15 @@ const connectDB = async () => {
 
 connectDB();
 
+// Global JSON parsing with raw body support (needed for signature verification)
+app.use(express.json({
+  verify: (req: any, _res, buf: Buffer) => {
+    req.rawBody = buf;
+  }
+}));
+
 app.use("/", getTicket);
+app.use("/", githubTokenRouter);
 startMcp(app);
 
 app.listen(port, () => {

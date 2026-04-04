@@ -9,6 +9,7 @@ import {
   Lock,
   Code2,
   Eye,
+  EyeOff,
   Search,
   CheckCircle,
   Clock,
@@ -22,6 +23,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { saveGithubToken, getGithubToken } from "@/api/api";
 
 const activityLogs = [
   { 
@@ -59,6 +62,53 @@ const activityLogs = [
 ];
 
 export function IntegrationsView() {
+  const [githubToken, setGithubToken] = useState("");
+  const [showToken, setShowToken] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [tokenExists, setTokenExists] = useState(false);
+
+  useEffect(() => {
+    const checkToken = async () => {
+      try {
+        const data = await getGithubToken();
+        if (data.exists) {
+          setTokenExists(true);
+          setGithubToken("********************"); // Placeholder for existing token
+        }
+      } catch (error) {
+        console.error("Failed to check GitHub token existence:", error);
+      }
+    };
+    checkToken();
+  }, []);
+
+  const handleSaveToken = async () => {
+    if (!githubToken || githubToken === "********************") {
+      setErrorMessage("Please enter a valid token");
+      setStatus("error");
+      return;
+    }
+
+    setIsLoading(true);
+    setStatus("idle");
+    setErrorMessage("");
+
+    try {
+      await saveGithubToken(githubToken);
+      setStatus("success");
+      setTokenExists(true);
+      // Optional: Clear token after success or keep masked
+      setGithubToken("********************");
+    } catch (error: any) {
+      setStatus("error");
+      setErrorMessage(error.message || "Failed to save token");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex-1 px-12 pt-10 pb-20 overflow-y-auto">
       <div className="flex items-center justify-between mb-2">
@@ -99,8 +149,10 @@ export function IntegrationsView() {
             <div>
               <h2 className="text-3xl font-bold text-white tracking-tight mb-1">GitHub</h2>
               <div className="flex items-center gap-2">
-                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-                 <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Connected</span>
+                 <div className={cn("w-1.5 h-1.5 rounded-full", tokenExists ? "bg-emerald-500" : "bg-zinc-500")} />
+                 <span className={cn("text-[10px] font-bold uppercase tracking-widest", tokenExists ? "text-emerald-400" : "text-zinc-500")}>
+                    {tokenExists ? "Connected" : "Not Connected"}
+                 </span>
               </div>
             </div>
           </div>
@@ -113,25 +165,54 @@ export function IntegrationsView() {
             <label className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] block">Personal Access Token</label>
             <div className="relative">
               <input 
-                type="password" 
-                value="........................" 
-                readOnly
+                type={showToken ? "text" : "password"} 
+                value={githubToken} 
+                onChange={(e) => setGithubToken(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSaveToken()}
+                placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
                 className="w-full bg-black/40 border border-white/5 rounded-2xl py-4 px-6 text-zinc-200 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
-              <button className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-white transition-colors cursor-pointer p-2">
-                 <Eye className="w-4 h-4" />
+              <button 
+                onClick={() => setShowToken(!showToken)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-white transition-colors cursor-pointer p-2"
+              >
+                 {showToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 mt-2">
-            <button className="flex-1 h-14 bg-blue-500 text-white rounded-2xl font-black text-sm tracking-widest uppercase hover:bg-blue-400 transition-all shadow-lg shadow-blue-500/20 active:scale-95 cursor-pointer flex items-center justify-center gap-3">
-               <Activity className="w-4 h-4" />
-               Test Connection
-            </button>
-            <button className="flex-1 h-14 bg-[#1a1c1e] border border-white/5 text-zinc-500 rounded-2xl font-black text-sm tracking-widest uppercase hover:bg-white/5 hover:text-white transition-all active:scale-95 cursor-pointer">
-               Disconnect
-            </button>
+          <div className="flex flex-col gap-4 mt-2">
+            {status === "error" && (
+              <p className="text-xs text-rose-500 font-bold uppercase tracking-widest flex items-center gap-2">
+                <AlertCircle className="w-3 h-3" />
+                {errorMessage}
+              </p>
+            )}
+            {status === "success" && (
+              <p className="text-xs text-emerald-500 font-bold uppercase tracking-widest flex items-center gap-2">
+                <CheckCircle className="w-3 h-3" />
+                Token Saved Successfully
+              </p>
+            )}
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={handleSaveToken}
+                disabled={isLoading}
+                className="flex-1 h-14 bg-blue-500 text-white rounded-2xl font-black text-sm tracking-widest uppercase hover:bg-blue-400 transition-all shadow-lg shadow-blue-500/20 active:scale-95 cursor-pointer flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                 {isLoading ? (
+                   <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                 ) : (
+                   <>
+                     <Activity className="w-4 h-4" />
+                     {tokenExists ? "Update Token" : "Connect"}
+                   </>
+                 )}
+              </button>
+              <button className="flex-1 h-14 bg-[#1a1c1e] border border-white/5 text-zinc-500 rounded-2xl font-black text-sm tracking-widest uppercase hover:bg-white/5 hover:text-white transition-all active:scale-95 cursor-pointer">
+                 Disconnect
+              </button>
+            </div>
           </div>
         </motion.div>
 

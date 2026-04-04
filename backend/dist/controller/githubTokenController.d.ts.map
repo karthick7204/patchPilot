@@ -1,0 +1,1 @@
+{"version":3,"file":"githubTokenController.d.ts","sourceRoot":"","sources":["../../src/controller/githubTokenController.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAGjD,eAAO,MAAM,eAAe,GAAU,KAAK,OAAO,EAAE,KAAK,QAAQ,KAAG,OAAO,CAAC,QAAQ,CAuBnF,CAAC;AAEF,eAAO,MAAM,cAAc,GAAU,KAAK,OAAO,EAAE,KAAK,QAAQ,KAAG,OAAO,CAAC,QAAQ,CAclF,CAAC"}

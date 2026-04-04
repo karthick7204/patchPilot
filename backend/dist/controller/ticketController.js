@@ -11,6 +11,11 @@ export function linearWebhookHandler() {
         const match = description.match(githubRegex);
         return match ? match[0] : null;
     }
+    function cleanDescription(description) {
+        // Remove the GitHub URL and trim spaces
+        const githubRegex = /https:\/\/github\.com\/[\w\-\.]+\/[\w\-\.]+/gi;
+        return description.replace(githubRegex, "").trim();
+    }
     return [
         express.json({
             verify: (req, _res, buf) => {
@@ -36,16 +41,18 @@ export function linearWebhookHandler() {
                 const description = req.body.data.description;
                 const title = req.body.data.title;
                 const repoUrl = extractGitHubUrl(description);
+                const cleanedDescription = cleanDescription(description);
                 if (repoUrl) {
                     console.log("Extracted Repo URL:", repoUrl);
+                    console.log("Cleaned Description:", cleanedDescription);
                     //this is for the database
                     const issue = new Issue({
                         name: title,
-                        description: description,
+                        description: cleanedDescription,
                         githubLink: repoUrl,
                     });
                     await issue.save();
-                    await handleLinearTask(req.body.data.id, repoUrl, description, title);
+                    await handleLinearTask(req.body.data.id, repoUrl, cleanedDescription, title);
                     console.log(`this is from the ticketcontroller ${req.body.data.description}`);
                 }
                 else {

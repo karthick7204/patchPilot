@@ -7,13 +7,19 @@ import Issue from "../models/Issue.js";
 
  export function linearWebhookHandler (){
 
-  function extractGitHubUrl(description: string): string | null {
+    function extractGitHubUrl(description: string): string | null {
     // Regex to find a GitHub URL within brackets or plain text
     const githubRegex = /https:\/\/github\.com\/[\w\-\.]+\/[\w\-\.]+/i;
     
     const match = description.match(githubRegex);
     
     return match ? match[0] : null;
+  }
+
+  function cleanDescription(description: string): string {
+    // Remove the GitHub URL and trim spaces
+    const githubRegex = /https:\/\/github\.com\/[\w\-\.]+\/[\w\-\.]+/gi;
+    return description.replace(githubRegex, "").trim();
   }
     return[
     
@@ -46,22 +52,24 @@ import Issue from "../models/Issue.js";
       const description = req.body.data.description; 
       const title = req.body.data.title;
       
-      const repoUrl = extractGitHubUrl(description);
+       const repoUrl = extractGitHubUrl(description);
+      const cleanedDescription = cleanDescription(description);
       
       if (repoUrl) {
        console.log("Extracted Repo URL:", repoUrl);
+       console.log("Cleaned Description:", cleanedDescription);
 
        //this is for the database
        const issue = new Issue({
          name: title,
-         description: description,
+         description: cleanedDescription,
          githubLink: repoUrl,
        });
 
        await issue.save();
 
 
-       await handleLinearTask(req.body.data.id, repoUrl , description, title);
+       await handleLinearTask(req.body.data.id, repoUrl , cleanedDescription, title);
 
        console.log(`this is from the ticketcontroller ${req.body.data.description}`);
       } else{
