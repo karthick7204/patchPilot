@@ -11,7 +11,7 @@ import {groqFixCode} from "./groqFix.js";
 export async function searchAndReadFile(folderPath: string,description:string, title:string,repourl:string){
     
     const transport = new StdioClientTransport({
-        command: "npx.cmd", 
+        command: "npx", 
         args: [
             "-y",
             "@modelcontextprotocol/server-filesystem",

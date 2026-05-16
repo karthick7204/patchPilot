@@ -8,12 +8,12 @@ import Issue from "../models/Issue.js";
  export function linearWebhookHandler (){
 
     function extractGitHubUrl(description: string): string | null {
-    // Regex to find a GitHub URL within brackets or plain text
-    const githubRegex = /https:\/\/github\.com\/[\w\-\.]+\/[\w\-\.]+/i;
+    // Improved regex to find a GitHub URL
+    const githubRegex = /https:\/\/github\.com\/([a-zA-Z0-9-._]+)\/([a-zA-Z0-9-._]+)/i;
     
     const match = description.match(githubRegex);
     
-    return match ? match[0] : null;
+    return match ? match[0].replace(/\/$/, "") : null;
   }
 
   function cleanDescription(description: string): string {
@@ -29,57 +29,59 @@ import Issue from "../models/Issue.js";
     },
   }),
 
-  async (req: any, res:any) => {
-    const signature = req.get("linear-signature");
+    async (req: any, res: any) => {
+      const signature = req.get("linear-signature");
 
-    //  Verify signature using RAW body
-    if (!verifySignature(signature, req.rawBody)) {
-      console.log(" Invalid Linear signature");
-      return res.sendStatus(401);
-    }
-
-    //  Replay protection (Linear requirement)
-    if (Math.abs(Date.now() - req.body.webhookTimestamp) > 60 * 1000) {
-      console.log(" Webhook timestamp too old");
-      return res.sendStatus(401);
-    }
-
-    try {
-      console.log("Linear webhook verified");
-      console.log(" Processing issue:", req.body.data.id);
-      console.log("description: from the", req.body.data.description);
-
-      const description = req.body.data.description; 
-      const title = req.body.data.title;
-      
-       const repoUrl = extractGitHubUrl(description);
-      const cleanedDescription = cleanDescription(description);
-      
-      if (repoUrl) {
-       console.log("Extracted Repo URL:", repoUrl);
-       console.log("Cleaned Description:", cleanedDescription);
-
-       //this is for the database
-       const issue = new Issue({
-         name: title,
-         description: cleanedDescription,
-         githubLink: repoUrl,
-       });
-
-       await issue.save();
-
-
-       await handleLinearTask(req.body.data.id, repoUrl , cleanedDescription, title);
-
-       console.log(`this is from the ticketcontroller ${req.body.data.description}`);
-      } else{
-       console.error(" No GitHub link found in the description.");
+      // Verify signature using RAW body
+      if (!verifySignature(signature, req.rawBody)) {
+        console.log(" Invalid Linear signature");
+        return res.sendStatus(401);
       }
-      return res.sendStatus(200);
-    } catch (err) {
-      console.error(" Error processing webhook:", err);
-      return res.sendStatus(500);
+
+      // Replay protection (Linear requirement)
+      if (Math.abs(Date.now() - req.body.webhookTimestamp) > 60 * 1000) {
+        console.log(" Webhook timestamp too old");
+        return res.sendStatus(401);
+      }
+
+      const { data } = req.body;
+      const description = data.description || "";
+      const title = data.title;
+      const repoUrl = extractGitHubUrl(description);
+
+      if (!repoUrl) {
+        console.error(" No GitHub link found in the description.");
+        return res.sendStatus(200);
+      }
+
+      // Respond immediately to prevent Linear timeout
+      res.sendStatus(200);
+
+      // Background processing
+      (async () => {
+        try {
+          console.log("Processing Linear webhook in background:", data.id);
+          const cleanedDescription = cleanDescription(description);
+
+          const issue = new Issue({
+            name: title,
+            description: cleanedDescription,
+            githubLink: repoUrl,
+            linearIssueId: data.identifier || data.id,
+            linearUrl: data.url,
+            status: data.state?.name,
+            priority: data.priority,
+            metadata: data,
+          });
+
+          await issue.save();
+          await handleLinearTask(data.id, repoUrl, cleanedDescription, title);
+          
+          console.log(`Successfully completed task for issue ${data.id}`);
+        } catch (err) {
+          console.error(" Error in background task processing:", err);
+        }
+      })();
     }
-  }
 ]
 }

@@ -9,7 +9,7 @@ import { writeCode } from "./writeCode.js";
 import { groqFixCode } from "./groqFix.js";
 export async function searchAndReadFile(folderPath, description, title, repourl) {
     const transport = new StdioClientTransport({
-        command: "npx.cmd",
+        command: "npx",
         args: [
             "-y",
             "@modelcontextprotocol/server-filesystem",

@@ -1,8 +1,14 @@
-import mongoose, { Document } from 'mongoose';
+import mongoose, { Document } from "mongoose";
 export interface IIssue extends Document {
     name: string;
     description: string;
     githubLink: string;
+    linearIssueId: string;
+    linearUrl?: string;
+    status?: string;
+    priority?: number;
+    metadata?: any;
+    userId?: mongoose.Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
 }

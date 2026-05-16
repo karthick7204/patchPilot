@@ -1,48 +1,70 @@
-import { exec } from "child_process";
-import { promisify } from "util";
+import { spawn } from "child_process";
 import dotenv from "dotenv";
 
-// Convert 'exec' to a promise so we can use 'await'
-const execAsync = promisify(exec);
 dotenv.config();
+
+/**
+ * Helper to run a shell command safely using spawn.
+ */
+async function runGit(args: string[], cwd: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const process = spawn("git", args, { cwd });
+    let stdout = "";
+    let stderr = "";
+
+    process.stdout.on("data", (data) => (stdout += data.toString()));
+    process.stderr.on("data", (data) => (stderr += data.toString()));
+
+    process.on("close", (code) => {
+      if (code === 0) {
+        resolve(stdout.trim());
+      } else {
+        reject(new Error(`Git command failed (code ${code}): ${stderr.trim()}`));
+      }
+    });
+  });
+}
 
 export async function pushToNewBranch(folderPath: string, issueTitle: string , GITHUB_REPO: string): Promise<string> {
     
     // 1. Create a unique branch name
-    // Example: "fix-calculation-error-170923"
-const safeTitle = issueTitle
-  .toLowerCase()
-  .replace(/[^a-z0-9]+/g, "-")   // replace spaces & symbols
-  .replace(/^-+|-+$/g, "")       // remove starting/ending dash
-  .slice(0, 40);    //const timestamp = Date.now().toString().slice(-4); 
+    const safeTitle = issueTitle
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")   // replace spaces & symbols
+      .replace(/^-+|-+$/g, "")       // remove starting/ending dash
+      .slice(0, 40);
+
     const timestamp = Date.now().toString().slice(-5);
     const branchName = `ai-fix-${safeTitle}-${timestamp}`;
+    
     console.log(`Creating branch: ${branchName}...`);
 
     try {
-      const repoPath = GITHUB_REPO
-             .replace("https://github.com/", "")
-             .replace(".git", "")
-             .replace(/\/$/, "");
+        const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+        if (!GITHUB_TOKEN) throw new Error("GITHUB_TOKEN is missing in environment variables.");
 
+        // Extract repo path (owner/repo)
+        const repoPath = GITHUB_REPO
+               .replace("https://github.com/", "")
+               .replace(".git", "")
+               .replace(/\/$/, "");
 
-        // Options: run these commands INSIDE the cloned project folder
-        const options = { cwd: folderPath };
-         await execAsync(
-           `git remote set-url origin https://${process.env.GITHUB_TOKEN}@github.com/${repoPath}.git`,
-            options
-             );
+        // Instead of setting the URL globally, we can use the URL with the token JUST for the push
+        // This is more secure as it doesn't stay in the config file.
+        const remoteWithToken = `https://${GITHUB_TOKEN}@github.com/${repoPath}.git`;
+
         // 2. Create and Switch to new branch
-        await execAsync(`git checkout -b "${branchName}"`, options);
+        await runGit(["checkout", "-b", branchName], folderPath);
 
-        // 3. Stage the changes (add the fixed file)
-        await execAsync(`git add .`, options);
+        // 3. Stage the changes
+        await runGit(["add", "."], folderPath);
 
         // 4. Commit the changes
-        await execAsync(`git commit -m "AI Fix: ${issueTitle}"`, options);
+        await runGit(["commit", "-m", `AI Fix: ${issueTitle}`], folderPath);
 
-        // 5. Push the branch to the remote repo (GitHub/GitLab)
-        await execAsync(`git push origin "${branchName}"`, options);
+        // 5. Push the branch to the remote repo using the authenticated URL
+        console.log(`Pushing code to ${branchName}...`);
+        await runGit(["push", remoteWithToken, branchName], folderPath);
 
         console.log(`🚀 Code pushed to origin/${branchName}`);
         return branchName;

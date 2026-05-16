@@ -1,9 +1,15 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IIssue extends Document {
   name: string;
   description: string;
   githubLink: string;
+  linearIssueId: string;
+  linearUrl?: string;
+  status?: string;
+  priority?: number;
+  metadata?: any;
+  userId?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -24,10 +30,33 @@ const IssueSchema: Schema = new Schema(
       required: true,
       trim: true,
     },
+    linearIssueId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    linearUrl: {
+      type: String,
+    },
+    status: {
+      type: String,
+      default: "backlog",
+    },
+    priority: {
+      type: Number,
+      default: 0,
+    },
+    metadata: {
+      type: Schema.Types.Mixed,
+    },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
   {
     timestamps: true,
   }
 );
 
-export default mongoose.model<IIssue>('Issue', IssueSchema);
+export default mongoose.model<IIssue>("Issue", IssueSchema);

@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { getTicket } from "./routes/getTicket.js";
 import githubTokenRouter from "./routes/githubTokenRoute.js";
+import authRouter from "./routes/authRoute.js";
 import { startMcp } from "./mcp/server.js";
 import mongoose from "mongoose";
 dotenv.config();
@@ -24,12 +25,18 @@ const connectDB = async () => {
     }
 };
 connectDB();
+// Request Logger
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`);
+    next();
+});
 // Global JSON parsing with raw body support (needed for signature verification)
 app.use(express.json({
     verify: (req, _res, buf) => {
         req.rawBody = buf;
     }
 }));
+app.use("/api/auth", authRouter);
 app.use("/", getTicket);
 app.use("/", githubTokenRouter);
 startMcp(app);

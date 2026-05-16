@@ -6,7 +6,7 @@ import { identifyTargetFile } from './FindFile_LLM.js';
 import { pushToNewBranch } from './gitManager.js';
 const simpleGit = simpleGitPkg.simpleGit; // Extract the function explicitly
 export async function handleLinearTask(issueId, repoUrl, description, title) {
-    const rootDir = 'C:/mcp-workspace';
+    const rootDir = process.env.MCP_WORKSPACE_PATH || 'C:/mcp-workspace';
     const tempPath = path.resolve(rootDir, issueId);
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
     // 1. Prepare Directory 
