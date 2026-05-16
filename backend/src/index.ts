@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import { getTicket } from "./routes/getTicket.js";
 import githubTokenRouter from "./routes/githubTokenRoute.js";
 import authRouter from "./routes/authRoute.js";
+import issueRouter from "./routes/issueRoute.js";
 import { startMcp } from "./mcp/server.js";
 import mongoose from "mongoose";
 dotenv.config();
@@ -42,7 +43,8 @@ app.use(express.json({
 }));
 
 app.use("/api/auth", authRouter);
-app.use("/", getTicket);
+app.use("/api/issues", issueRouter);
+app.use("/linear/:userId", getTicket);
 app.use("/", githubTokenRouter);
 startMcp(app);
 

@@ -55,3 +55,36 @@ export const getGithubToken = async () => {
   // This would typically fetch from the user profile now
   return { exists: false };
 };
+
+export const getIssues = async () => {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE_URL}/api/issues`, {
+    method: "GET",
+    headers: { 
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to fetch issues");
+  }
+  return response.json();
+};
+
+export const createIssue = async (issueData: any) => {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE_URL}/api/issues`, {
+    method: "POST",
+    headers: { 
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify(issueData),
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to create issue");
+  }
+  return response.json();
+};

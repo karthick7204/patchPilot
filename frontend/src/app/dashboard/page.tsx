@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Github, 
   Zap, 
   Copy, 
   Check, 
@@ -15,12 +14,19 @@ import {
   X,
   Rocket,
   ShieldCheck,
-  Clock
+  Clock,
+  Plus
 } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
-import { updateSettings } from "@/api/api";
+import { updateSettings, getIssues, createIssue } from "@/api/api";
+import Link from "next/link";
+import Sidebar from "@/components/Sidebar";
+import IssueDetailModal from "@/components/IssueDetailModal";
 
 export default function DashboardPage() {
+  const [issues, setIssues] = useState<any[]>([]);
+  const [selectedIssue, setSelectedIssue] = useState<any>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [githubToken, setGithubToken] = useState("");
@@ -28,8 +34,52 @@ export default function DashboardPage() {
   const [copied, setCopied] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isLoadingIssues, setIsLoadingIssues] = useState(true);
 
-  const WEBHOOK_URL = "https://patchpilot-backend.ngrok.app/linear";
+  const [userId, setUserId] = useState<string>("");
+
+  useEffect(() => {
+    // Extract user ID from token for the unique webhook URL
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        setUserId(payload.id);
+      } catch (e) {
+        console.error("Failed to parse token", e);
+      }
+    }
+    fetchIssues();
+  }, []);
+
+  const fetchIssues = async () => {
+    setIsLoadingIssues(true);
+    try {
+      const data = await getIssues();
+      setIssues(data);
+    } catch (err) {
+      console.error("Failed to fetch issues", err);
+    } finally {
+      setIsLoadingIssues(false);
+    }
+  };
+
+  const handleQuickAdd = async () => {
+    try {
+      await createIssue({
+        name: "Test Bug: Sidebar navigation overlap",
+        description: "The sidebar overlaps with the main content on iPad Pro resolution.",
+        githubLink: "https://github.com/patchpilot/core",
+        priority: 2,
+        status: "processing"
+      });
+      fetchIssues();
+    } catch (err) {
+      console.error("Failed to create issue", err);
+    }
+  };
+
+  const WEBHOOK_URL = `https://patchpilot-backend.ngrok.app/linear/${userId}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(WEBHOOK_URL);
@@ -50,15 +100,14 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d0f11] text-zinc-100 p-12 font-sans relative overflow-hidden">
-      {/* Background Decor */}
+    <div className="min-h-screen bg-[#0d0f11] text-zinc-100 p-12 pl-32 font-sans relative overflow-hidden">
+      <Sidebar />
       <div className="absolute top-0 right-0 w-full h-full pointer-events-none">
         <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/5 blur-[120px] rounded-full" />
         <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/5 blur-[120px] rounded-full" />
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
-        {/* Header */}
         <div className="flex justify-between items-end mb-16">
           <div>
             <h1 className="text-5xl font-black text-white tracking-tighter mb-4">Dashboard</h1>
@@ -73,7 +122,6 @@ export default function DashboardPage() {
           </button>
         </div>
 
-        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {[
             { icon: Rocket, label: "Success Rate", value: "94%", color: "text-blue-400" },
@@ -88,27 +136,121 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Empty State / Get Started */}
-        <div className="bg-[#14171a] border border-white/5 rounded-[3rem] p-20 flex flex-col items-center text-center gap-8 shadow-2xl">
-          <div className="w-24 h-24 bg-blue-500/10 border border-blue-500/20 rounded-[2rem] flex items-center justify-center animate-pulse">
-            <Zap className="w-10 h-10 text-blue-500" />
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+                <Zap className="w-5 h-5 text-blue-500" />
+                Recent Activity
+              </h2>
+              <Link 
+                href="/issues" 
+                className="text-[10px] font-bold text-blue-500 hover:text-blue-400 uppercase tracking-widest transition-colors flex items-center gap-1"
+              >
+                View All <ArrowRight className="w-2 h-2" />
+              </Link>
+            </div>
+            <div className="flex items-center gap-4">
+                <button 
+                  onClick={handleQuickAdd}
+                  className="px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-xl text-[10px] font-bold text-blue-400 uppercase tracking-widest transition-all flex items-center gap-2"
+                >
+                  <Plus className="w-3 h-3" /> Quick Add
+                </button>
+                <button onClick={fetchIssues} className="text-[10px] font-bold text-zinc-500 hover:text-white uppercase tracking-widest transition-colors flex items-center gap-2">
+                  Refresh <Clock className="w-3 h-3" />
+                </button>
+            </div>
           </div>
-          <div className="space-y-4 max-w-lg">
-            <h2 className="text-3xl font-bold text-white tracking-tight">Ready to start patching?</h2>
-            <p className="text-zinc-500 font-medium leading-relaxed">
-              Connect your GitHub repository and Linear workspace to allow PatchPilot to automatically identify and resolve bugs in your codebase.
-            </p>
-          </div>
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="px-12 py-5 bg-blue-600 hover:bg-blue-500 text-white font-black text-sm tracking-widest uppercase rounded-3xl transition-all shadow-xl shadow-blue-500/20 hover:scale-105 active:scale-95"
-          >
-            Get Started Now
-          </button>
+
+          {isLoadingIssues ? (
+            <div className="bg-[#14171a] border border-white/5 rounded-[2.5rem] p-20 flex flex-col items-center justify-center gap-4">
+              <div className="w-8 h-8 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+              <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">Loading Issues...</p>
+            </div>
+          ) : issues.length > 0 ? (
+            <div className="grid grid-cols-1 gap-4">
+              {issues.map((issue) => (
+                <motion.div 
+                  key={issue._id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  onClick={() => {
+                    setSelectedIssue(issue);
+                    setIsDetailOpen(true);
+                  }}
+                  className="bg-[#14171a] border border-white/5 rounded-3xl p-6 hover:border-white/10 transition-all group cursor-pointer"
+                >
+                  <div className="flex items-center justify-between gap-6">
+                    <div className="flex items-center gap-6 flex-1 min-w-0">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
+                        issue.status === 'done' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-blue-500/10 text-blue-500'
+                      }`}>
+                        <FaGithub className="w-6 h-6" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-3 mb-1">
+                          <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">{issue.linearIssueId}</span>
+                          <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">•</span>
+                          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{new Date(issue.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <h3 className="text-white font-bold truncate group-hover:text-blue-400 transition-colors">{issue.name}</h3>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-8 shrink-0">
+                      <div className="text-right hidden sm:block">
+                        <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-1">Status</div>
+                        <div className={`text-xs font-black uppercase tracking-tighter ${
+                          issue.status === 'done' ? 'text-emerald-500' : 'text-blue-500'
+                        }`}>
+                          {issue.status || 'Processing'}
+                        </div>
+                      </div>
+                      <div className="text-right hidden sm:block">
+                        <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-1">Priority</div>
+                        <div className="text-xs font-black text-white uppercase tracking-tighter">
+                          P{issue.priority || 0}
+                        </div>
+                      </div>
+                      <button className="p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 transition-all text-zinc-400 hover:text-white">
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-[#14171a] border border-white/5 rounded-[3rem] p-20 flex flex-col items-center text-center gap-8 shadow-2xl">
+              <div className="w-24 h-24 bg-blue-500/10 border border-blue-500/20 rounded-[2rem] flex items-center justify-center animate-pulse">
+                <Zap className="w-10 h-10 text-blue-500" />
+              </div>
+              <div className="space-y-4 max-w-lg">
+                <h2 className="text-3xl font-bold text-white tracking-tight">Ready to start patching?</h2>
+                <p className="text-zinc-500 font-medium leading-relaxed">
+                  No issues detected yet. Connect your GitHub repository and Linear workspace to see them here.
+                </p>
+              </div>
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setIsModalOpen(true)}
+                  className="px-12 py-5 bg-blue-600 hover:bg-blue-500 text-white font-black text-sm tracking-widest uppercase rounded-3xl transition-all shadow-xl shadow-blue-500/20 hover:scale-105 active:scale-95"
+                >
+                  Get Started Now
+                </button>
+                <button 
+                  onClick={handleQuickAdd}
+                  className="px-12 py-5 bg-white/5 hover:bg-white/10 text-white font-black text-sm tracking-widest uppercase rounded-3xl transition-all border border-white/10"
+                >
+                  Quick Add Test
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Setup Modal */}
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
@@ -286,6 +428,11 @@ export default function DashboardPage() {
           </div>
         )}
       </AnimatePresence>
+      <IssueDetailModal 
+        issue={selectedIssue}
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+      />
     </div>
   );
 }
