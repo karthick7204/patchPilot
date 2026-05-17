@@ -7,6 +7,8 @@ export interface IIssue extends Document {
     linearUrl?: string;
     status?: string;
     priority?: number;
+    extractedCode?: string;
+    fixedCode?: string;
     metadata?: any;
     userId?: mongoose.Types.ObjectId;
     createdAt: Date;

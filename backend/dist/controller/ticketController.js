@@ -55,7 +55,12 @@ export function linearWebhookHandler() {
                         userId: userId // Associate the issue with the unique user
                     });
                     await issue.save();
-                    await handleLinearTask(data.id, repoUrl, cleanedDescription, title);
+                    const taskResult = await handleLinearTask(data.id, repoUrl, cleanedDescription, title);
+                    if (taskResult && taskResult.code) {
+                        issue.extractedCode = taskResult.code;
+                        issue.fixedCode = taskResult.codeFix;
+                        await issue.save();
+                    }
                     console.log(`Successfully completed task for issue ${data.id}`);
                 }
                 catch (err) {

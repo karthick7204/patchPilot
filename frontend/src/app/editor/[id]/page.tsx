@@ -37,15 +37,15 @@ export default function EditorPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0d0f11] flex flex-col items-center justify-center gap-4">
-        <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
-        <p className="text-sm font-bold text-zinc-500 uppercase tracking-[0.2em]">Initializing Workspace...</p>
+      <div className="min-h-screen bg-white dark:bg-[#0d1117] flex flex-col items-center justify-center gap-4">
+        <div className="w-12 h-12 border-4 border-[#0969da]/20 dark:border-[#58a6ff]/20 border-t-[#0969da] dark:border-t-[#58a6ff] rounded-full animate-spin" />
+        <p className="text-sm font-bold text-[#57606a] dark:text-[#8b949e] uppercase tracking-[0.2em]">Initializing Workspace...</p>
       </div>
     );
   }
 
   return (
-    <div className="h-screen w-screen bg-[#1e1e1e] overflow-hidden pl-24 relative">
+    <div className="h-screen w-screen bg-white dark:bg-[#0d1117] overflow-hidden pl-24 relative">
       <Sidebar />
       <PatchEditor 
         isOpen={true} 

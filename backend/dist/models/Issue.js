@@ -30,6 +30,12 @@ const IssueSchema = new Schema({
         type: Number,
         default: 0,
     },
+    extractedCode: {
+        type: String,
+    },
+    fixedCode: {
+        type: String,
+    },
     metadata: {
         type: Schema.Types.Mixed,
     },

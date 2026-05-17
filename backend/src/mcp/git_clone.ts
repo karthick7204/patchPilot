@@ -6,7 +6,7 @@ import {identifyTargetFile} from './FindFile_LLM.js';
 import { pushToNewBranch } from './gitManager.js';
 const simpleGit = simpleGitPkg.simpleGit; // Extract the function explicitly
 
-export async function handleLinearTask(issueId: string, repoUrl: string , description: string , title : string): Promise<string> {
+export async function handleLinearTask(issueId: string, repoUrl: string , description: string , title : string): Promise<any> {
     const rootDir = process.env.MCP_WORKSPACE_PATH || 'C:/mcp-workspace';
     const tempPath = path.resolve(rootDir, issueId);
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
@@ -35,8 +35,8 @@ export async function handleLinearTask(issueId: string, repoUrl: string , descri
         
         console.log(" Clone Successful!");
         const repourl = repoUrl
-        await searchAndReadFile(tempPath,description,title,repourl);
-        return tempPath;
+        const searchResult: any = await searchAndReadFile(tempPath,description,title,repourl);
+        return { tempPath, ...searchResult };
     } catch (error) {
         console.error(" Clone failed:", error);
         throw error;

@@ -45,35 +45,31 @@ export default function IssuesPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#0d0f11] text-zinc-100 p-12 pl-32 font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-white dark:bg-[#0d1117] text-[#24292f] dark:text-[#c9d1d9] p-12 pl-32 font-sans relative overflow-hidden">
       <Sidebar />
-      {/* Background Decor */}
-      <div className="absolute top-0 right-0 w-full h-full pointer-events-none">
-        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/5 blur-[120px] rounded-full" />
-      </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Header */}
-        <div className="flex flex-col gap-8 mb-16">
+        <div className="flex flex-col gap-6 mb-8 border-b border-[#d0d7de] dark:border-[#30363d] pb-6">
           <div className="flex justify-between items-end">
             <div>
-              <h1 className="text-5xl font-black text-white tracking-tighter mb-4">Issues</h1>
-              <p className="text-zinc-500 font-medium">Manage and track your autonomous bug fixes.</p>
+              <h1 className="text-3xl font-semibold text-[#24292f] dark:text-[#c9d1d9] mb-2 tracking-tight">Issues</h1>
+              <p className="text-[#57606a] dark:text-[#8b949e] text-sm">Manage and track your autonomous bug fixes.</p>
             </div>
             
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 group-focus-within:text-blue-500 transition-colors" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#57606a] dark:text-[#8b949e]" />
                 <input 
                   type="text"
                   placeholder="Search issues..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-[#14171a] border border-white/5 rounded-2xl py-4 pl-12 pr-6 text-sm text-white focus:outline-none focus:border-blue-500/50 transition-all min-w-[300px]"
+                  className="bg-[#f6f8fa] dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-md py-2 pl-9 pr-4 text-sm text-[#24292f] dark:text-[#c9d1d9] focus:outline-none focus:border-[#0969da] focus:ring-1 focus:ring-[#0969da] transition-all min-w-[260px]"
                 />
               </div>
-              <button className="p-4 bg-[#14171a] border border-white/5 rounded-2xl text-zinc-400 hover:text-white transition-all">
-                <Filter className="w-5 h-5" />
+              <button className="px-3 bg-[#f6f8fa] dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-md text-[#24292f] dark:text-[#c9d1d9] hover:bg-[#f3f4f6] dark:hover:bg-[#30363d] transition-all shadow-sm flex items-center justify-center">
+                <Filter className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -82,90 +78,93 @@ export default function IssuesPage() {
         {/* Issues List */}
         <div className="space-y-4">
           {isLoading ? (
-            <div className="bg-[#14171a] border border-white/5 rounded-[2.5rem] p-40 flex flex-col items-center justify-center gap-4">
-              <div className="w-8 h-8 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
-              <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">Scanning Workspace...</p>
+            <div className="bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded-md p-24 flex flex-col items-center justify-center gap-4">
+              <div className="w-6 h-6 border-2 border-[#d0d7de] dark:border-[#30363d] border-t-[#0969da] dark:border-t-[#58a6ff] rounded-full animate-spin" />
+              <p className="text-sm font-medium text-[#57606a] dark:text-[#8b949e]">Scanning workspace...</p>
             </div>
           ) : filteredIssues.length > 0 ? (
-            filteredIssues.map((issue) => (
-              <motion.div 
-                key={issue._id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                onClick={() => {
-                  setSelectedIssue(issue);
-                  setIsDetailOpen(true);
-                }}
-                className="bg-[#14171a] border border-white/5 rounded-3xl p-8 hover:border-white/10 transition-all group cursor-pointer"
-              >
-                <div className="flex items-center justify-between gap-8">
-                  <div className="flex items-center gap-8 flex-1 min-w-0">
-                    <div className={`w-14 h-14 rounded-[1.25rem] flex items-center justify-center shrink-0 ${
-                      issue.status === 'done' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-blue-500/10 text-blue-500'
-                    }`}>
-                      <FaGithub className="w-7 h-7" />
-                    </div>
-                    
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-4 mb-2">
-                        <span className="px-3 py-1 bg-blue-500/10 text-blue-500 text-[10px] font-black uppercase tracking-widest rounded-lg">
-                          {issue.linearIssueId}
-                        </span>
-                        <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">
-                          {new Date(issue.createdAt).toLocaleDateString()}
-                        </span>
-                        <div className="w-1 h-1 bg-zinc-700 rounded-full" />
-                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest truncate max-w-[200px]">
-                          {issue.githubLink}
-                        </span>
-                      </div>
-                      <h3 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors truncate">
-                        {issue.name}
-                      </h3>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-12 shrink-0">
-                    <div className="text-right">
-                      <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-1">Priority</div>
-                      <div className="text-sm font-black text-white">P{issue.priority || 0}</div>
-                    </div>
-                    
-                    <div className="text-right">
-                      <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest mb-1">Fix Status</div>
-                      <div className={`text-sm font-black uppercase tracking-tighter ${
-                        issue.status === 'done' ? 'text-emerald-500' : 'text-blue-400'
-                      }`}>
-                        {issue.status || 'Pending'}
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      {issue.linearUrl && (
-                        <a 
-                          href={issue.linearUrl} 
-                          target="_blank"
-                          className="p-4 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/5 transition-all text-zinc-400 hover:text-white"
-                        >
-                          <ExternalLink className="w-5 h-5" />
-                        </a>
-                      )}
-                      <button className="p-4 bg-white text-black hover:bg-zinc-200 rounded-2xl transition-all shadow-xl shadow-white/5">
-                        <ArrowRight className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))
-          ) : (
-            <div className="bg-[#14171a] border border-white/5 rounded-[3rem] p-32 flex flex-col items-center text-center gap-8">
-              <div className="w-24 h-24 bg-zinc-500/5 border border-white/5 rounded-[2.5rem] flex items-center justify-center">
-                <Search className="w-10 h-10 text-zinc-700" />
+            <div className="bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded-md overflow-hidden">
+              <div className="bg-[#f6f8fa] dark:bg-[#161b22] border-b border-[#d0d7de] dark:border-[#30363d] px-4 py-3 flex items-center text-sm font-semibold text-[#24292f] dark:text-[#c9d1d9]">
+                <div className="flex-1">Issue Details</div>
+                <div className="w-24 text-right hidden sm:block">Status</div>
+                <div className="w-20 text-right hidden sm:block">Priority</div>
+                <div className="w-24"></div>
               </div>
-              <div className="space-y-4">
-                <h3 className="text-2xl font-bold text-white tracking-tight">No issues found</h3>
-                <p className="text-zinc-500 font-medium max-w-sm mx-auto">
+              <div className="divide-y divide-[#d0d7de]">
+                {filteredIssues.map((issue) => (
+                  <motion.div 
+                    key={issue._id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    onClick={() => {
+                      setSelectedIssue(issue);
+                      setIsDetailOpen(true);
+                    }}
+                    className="p-4 hover:bg-[#f6f8fa] dark:bg-[#161b22] transition-colors cursor-pointer group flex items-center justify-between gap-6"
+                  >
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                        issue.status === 'done' ? 'bg-[#e6ffec] dark:bg-[#2ea04326] text-[#1a7f37] dark:text-[#3fb950]' : 'bg-[#ddf4ff] dark:bg-[#388bfd26] text-[#0969da] dark:text-[#58a6ff]'
+                      }`}>
+                        <FaGithub className="w-4 h-4" />
+                      </div>
+                      
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-baseline gap-2 mb-0.5">
+                          <h3 className="text-[#0969da] dark:text-[#58a6ff] font-semibold truncate group-hover:underline text-[15px] leading-tight">
+                            {issue.name}
+                          </h3>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-[#57606a] dark:text-[#8b949e]">
+                          <span>#{issue.linearIssueId}</span>
+                          <span>opened on {new Date(issue.createdAt).toLocaleDateString()}</span>
+                          <span>•</span>
+                          <span className="truncate max-w-[200px]">{issue.githubLink}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-6 shrink-0 text-sm">
+                      <div className="w-24 text-right hidden sm:block">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${
+                          issue.status === 'done' ? 'bg-[#e6ffec] dark:bg-[#2ea04326] text-[#1a7f37] dark:text-[#3fb950] border-[#4ac26b]/40 dark:border-[#2ea043]' : 'bg-[#ddf4ff] dark:bg-[#388bfd26] text-[#0969da] dark:text-[#58a6ff] border-[#54aeff]/40 dark:border-[#388bfd]'
+                        }`}>
+                          {issue.status || 'Pending'}
+                        </span>
+                      </div>
+                      
+                      <div className="w-20 text-right hidden sm:block text-[#57606a] dark:text-[#8b949e] font-medium">
+                        P{issue.priority || 0}
+                      </div>
+
+                      <div className="w-24 flex justify-end gap-2 text-[#57606a] dark:text-[#8b949e]">
+                        {issue.linearUrl && (
+                          <a 
+                            href={issue.linearUrl} 
+                            target="_blank"
+                            onClick={(e) => e.stopPropagation()}
+                            className="p-1.5 hover:bg-[#f3f4f6] dark:hover:bg-[#30363d] rounded-md transition-all text-[#57606a] dark:text-[#8b949e] hover:text-[#0969da] dark:text-[#58a6ff]"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                        )}
+                        <button className="p-1.5 text-[#57606a] dark:text-[#8b949e] group-hover:text-[#0969da] dark:text-[#58a6ff]">
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded-md p-20 flex flex-col items-center text-center gap-6">
+              <div className="w-16 h-16 bg-[#f6f8fa] dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-full flex items-center justify-center">
+                <Search className="w-6 h-6 text-[#57606a] dark:text-[#8b949e]" />
+              </div>
+              <div className="space-y-2 max-w-sm mx-auto">
+                <h3 className="text-xl font-semibold text-[#24292f] dark:text-[#c9d1d9]">No issues found</h3>
+                <p className="text-sm text-[#57606a] dark:text-[#8b949e] leading-relaxed">
                   We couldn't find any issues matching your search criteria or in your account history.
                 </p>
               </div>

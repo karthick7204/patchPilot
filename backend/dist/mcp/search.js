@@ -39,7 +39,7 @@ export async function searchAndReadFile(folderPath, description, title, repourl)
         console.log("TASK COMPLETE!");
         console.log(`Please review the fix on branch: [ ${branchName} ]`);
         console.log("-----------------------------------------------");
-        return branchName;
+        return { branchName, code, codeFix };
     }
     catch (error) {
         console.log("Fix was saved locally, but Git Push failed.");
@@ -48,6 +48,6 @@ export async function searchAndReadFile(folderPath, description, title, repourl)
     console.log("File Content Retrieved!");
     console.log(`this is the file code from search.ts file: ${code}`);
     console.log(`this is the fixed code from search.ts file: ${codeFix}`);
-    return codeFix;
+    return { branchName: null, code, codeFix };
 }
 //# sourceMappingURL=search.js.map

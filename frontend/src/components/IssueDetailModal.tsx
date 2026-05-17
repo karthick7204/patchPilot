@@ -28,10 +28,10 @@ export default function IssueDetailModal({ issue, isOpen, onClose }: IssueDetail
   if (!issue) return null;
 
   const detailItems = [
-    { icon: Tag, label: "Linear ID", value: issue.linearIssueId, color: "text-blue-500" },
-    { icon: Shield, label: "Priority", value: `P${issue.priority || 0}`, color: "text-amber-500" },
-    { icon: Info, label: "Status", value: issue.status || "Processing", color: "text-indigo-500" },
-    { icon: UserIcon, label: "Owner ID", value: issue.userId, color: "text-zinc-500" },
+    { icon: Tag, label: "Linear ID", value: issue.linearIssueId, color: "text-[#0969da] dark:text-[#58a6ff]" },
+    { icon: Shield, label: "Priority", value: `P${issue.priority || 0}`, color: "text-[#bf8700]" },
+    { icon: Info, label: "Status", value: issue.status || "Processing", color: "text-[#8250df]" },
+    { icon: UserIcon, label: "Owner ID", value: issue.userId || "Unassigned", color: "text-[#57606a] dark:text-[#8b949e]" },
   ];
 
   return (
@@ -43,7 +43,7 @@ export default function IssueDetailModal({ issue, isOpen, onClose }: IssueDetail
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
           />
           
           <motion.div 
@@ -51,92 +51,97 @@ export default function IssueDetailModal({ issue, isOpen, onClose }: IssueDetail
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="bg-[#0d0f11] border-l border-white/10 h-full w-full max-w-2xl shadow-2xl relative z-10 flex flex-col"
+            className="bg-white dark:bg-[#0d1117] border-l border-[#d0d7de] dark:border-[#30363d] h-full w-full max-w-2xl shadow-xl relative z-10 flex flex-col rounded-l-xl"
           >
             {/* Header */}
-            <div className="p-10 border-b border-white/5 flex justify-between items-start">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center">
-                    <FaGithub className="w-5 h-5 text-blue-500" />
+            <div className="px-6 py-4 border-b border-[#d0d7de] dark:border-[#30363d] bg-[#f6f8fa] dark:bg-[#161b22] flex justify-between items-start rounded-tl-xl">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-6 h-6 bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded-md flex items-center justify-center">
+                    <FaGithub className="w-4 h-4 text-[#24292f] dark:text-[#c9d1d9]" />
                   </div>
-                  <span className="text-xs font-black text-zinc-500 uppercase tracking-widest">Issue Details</span>
+                  <span className="text-xs font-semibold text-[#57606a] dark:text-[#8b949e] uppercase tracking-wide">Issue Details</span>
                 </div>
-                <h2 className="text-3xl font-black text-white tracking-tight leading-tight">{issue.name}</h2>
+                <h2 className="text-2xl font-semibold text-[#24292f] dark:text-[#c9d1d9] tracking-tight">{issue.name}</h2>
+                <div className="text-sm text-[#57606a] dark:text-[#8b949e] flex gap-2 items-center">
+                  <span>#{issue.linearIssueId}</span>
+                  <span>•</span>
+                  <span>{issue.status || "Processing"}</span>
+                </div>
               </div>
               <button 
                 onClick={onClose}
-                className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl text-zinc-500 hover:text-white transition-all"
+                className="p-1.5 hover:bg-[#ebecf0] dark:hover:bg-[#21262d] rounded-md text-[#57606a] dark:text-[#8b949e] hover:text-[#24292f] dark:text-[#c9d1d9] transition-all"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-10 space-y-12">
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-white dark:bg-[#0d1117]">
               {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-4">
                 {detailItems.map((item, i) => (
-                  <div key={i} className="bg-[#14171a] border border-white/5 rounded-3xl p-6 space-y-2">
+                  <div key={i} className="bg-white dark:bg-[#0d1117] border border-[#d0d7de] dark:border-[#30363d] rounded-md p-4 space-y-1 shadow-sm">
                     <div className="flex items-center gap-2">
-                      <item.icon className={`w-3 h-3 ${item.color}`} />
-                      <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">{item.label}</span>
+                      <item.icon className={`w-4 h-4 ${item.color}`} />
+                      <span className="text-xs font-semibold text-[#57606a] dark:text-[#8b949e]">{item.label}</span>
                     </div>
-                    <div className="text-sm font-black text-white">{item.value}</div>
+                    <div className="text-sm font-semibold text-[#24292f] dark:text-[#c9d1d9]">{item.value}</div>
                   </div>
                 ))}
               </div>
 
               {/* Description */}
-              <div className="space-y-4">
-                <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest flex items-center gap-2">
-                  <Info className="w-4 h-4" /> Description
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-[#24292f] dark:text-[#c9d1d9] flex items-center gap-2">
+                  <Info className="w-4 h-4 text-[#57606a] dark:text-[#8b949e]" /> Description
                 </h3>
-                <div className="bg-[#14171a] border border-white/5 rounded-3xl p-8 text-zinc-400 text-sm leading-relaxed font-medium">
+                <div className="bg-[#f6f8fa] dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-md p-4 text-[#24292f] dark:text-[#c9d1d9] text-sm leading-relaxed font-sans whitespace-pre-wrap">
                   {issue.description || "No description provided."}
                 </div>
               </div>
 
               {/* GitHub Link */}
-              <div className="space-y-4">
-                <h3 className="text-xs font-black text-zinc-500 uppercase tracking-widest">Source Repository</h3>
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-[#24292f] dark:text-[#c9d1d9]">Source Repository</h3>
                 <a 
                   href={issue.githubLink}
                   target="_blank"
-                  className="flex items-center justify-between p-6 bg-white/5 hover:bg-white/10 border border-white/5 rounded-3xl group transition-all"
+                  className="flex items-center justify-between p-4 bg-white dark:bg-[#0d1117] hover:bg-[#f6f8fa] dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-md group transition-all shadow-sm"
                 >
-                  <div className="flex items-center gap-4">
-                    <FaGithub className="w-5 h-5 text-zinc-400 group-hover:text-white transition-colors" />
-                    <span className="text-sm font-bold text-zinc-300 group-hover:text-white transition-colors truncate max-w-xs">{issue.githubLink}</span>
+                  <div className="flex items-center gap-3">
+                    <FaGithub className="w-5 h-5 text-[#24292f] dark:text-[#c9d1d9]" />
+                    <span className="text-sm font-medium text-[#0969da] dark:text-[#58a6ff] group-hover:underline truncate max-w-xs">{issue.githubLink}</span>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-zinc-600 group-hover:text-blue-500 transition-all" />
+                  <ExternalLink className="w-4 h-4 text-[#57606a] dark:text-[#8b949e] group-hover:text-[#0969da] dark:text-[#58a6ff] transition-all" />
                 </a>
               </div>
 
               {/* Timestamps */}
-              <div className="flex items-center gap-8 py-4 border-t border-white/5">
-                <div className="flex items-center gap-3">
-                  <Calendar className="w-4 h-4 text-zinc-600" />
+              <div className="flex items-center gap-8 py-4 border-t border-[#d0d7de] dark:border-[#30363d]">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-[#57606a] dark:text-[#8b949e]" />
                   <div>
-                    <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Created</div>
-                    <div className="text-xs font-bold text-zinc-400">{new Date(issue.createdAt).toLocaleString()}</div>
+                    <div className="text-xs font-semibold text-[#57606a] dark:text-[#8b949e]">Created</div>
+                    <div className="text-xs text-[#24292f] dark:text-[#c9d1d9]">{new Date(issue.createdAt).toLocaleString()}</div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="w-4 h-4 text-zinc-600" />
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-[#57606a] dark:text-[#8b949e]" />
                   <div>
-                    <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">Updated</div>
-                    <div className="text-xs font-bold text-zinc-400">{new Date(issue.updatedAt).toLocaleString()}</div>
+                    <div className="text-xs font-semibold text-[#57606a] dark:text-[#8b949e]">Updated</div>
+                    <div className="text-xs text-[#24292f] dark:text-[#c9d1d9]">{new Date(issue.updatedAt).toLocaleString()}</div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Footer Actions */}
-            <div className="p-10 border-t border-white/5 bg-black/20 flex gap-4">
+            <div className="px-6 py-4 border-t border-[#d0d7de] dark:border-[#30363d] bg-[#f6f8fa] dark:bg-[#161b22] flex gap-3 rounded-bl-xl">
               <button 
                 onClick={() => router.push(`/editor/${issue._id}`)}
-                className="flex-1 py-5 bg-blue-600 hover:bg-blue-500 text-white font-black text-xs tracking-widest uppercase rounded-3xl transition-all shadow-xl shadow-blue-500/20 active:scale-95"
+                className="flex-1 py-2 bg-[#2da44e] dark:bg-[#238636] hover:bg-[#2c974b] dark:hover:bg-[#2ea043] border border-[rgba(27,31,36,0.15)] dark:border-[#f0f6fc1a] text-white font-medium text-sm rounded-md transition-all shadow-sm"
               >
                 Trigger AI Patch
               </button>
@@ -144,7 +149,7 @@ export default function IssueDetailModal({ issue, isOpen, onClose }: IssueDetail
                 <a 
                   href={issue.linearUrl}
                   target="_blank"
-                  className="px-8 py-5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-black text-xs tracking-widest uppercase rounded-3xl transition-all flex items-center justify-center gap-2"
+                  className="px-4 py-2 bg-[#f6f8fa] dark:bg-[#161b22] hover:bg-[#f3f4f6] dark:hover:bg-[#30363d] border border-[#d0d7de] dark:border-[#30363d] text-[#24292f] dark:text-[#c9d1d9] font-medium text-sm rounded-md transition-all flex items-center justify-center gap-2 shadow-sm"
                 >
                   View on Linear <ExternalLink className="w-4 h-4" />
                 </a>

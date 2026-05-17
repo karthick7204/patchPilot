@@ -30,8 +30,8 @@ export async function handleLinearTask(issueId, repoUrl, description, title) {
         console.log("Clone result:", result);
         console.log(" Clone Successful!");
         const repourl = repoUrl;
-        await searchAndReadFile(tempPath, description, title, repourl);
-        return tempPath;
+        const searchResult = await searchAndReadFile(tempPath, description, title, repourl);
+        return { tempPath, ...searchResult };
     }
     catch (error) {
         console.error(" Clone failed:", error);

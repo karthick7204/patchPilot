@@ -50,7 +50,7 @@ export async function searchAndReadFile(folderPath: string,description:string, t
         console.log(`Please review the fix on branch: [ ${branchName} ]`);
         console.log("-----------------------------------------------");
         
-        return branchName;
+        return { branchName, code, codeFix };
 
     } catch (error) {
         console.log("Fix was saved locally, but Git Push failed.");
@@ -61,5 +61,5 @@ export async function searchAndReadFile(folderPath: string,description:string, t
     console.log(`this is the file code from search.ts file: ${code}`); 
     console.log(`this is the fixed code from search.ts file: ${codeFix}`);
     
-    return codeFix;
+    return { branchName: null, code, codeFix };
 }

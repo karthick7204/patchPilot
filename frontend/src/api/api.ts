@@ -9,7 +9,13 @@ export const signup = async (userData: any) => {
     body: JSON.stringify(userData),
   });
   if (!response.ok) {
-    const error = await response.json();
+    if (response.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
+    }
+    const error = await response.json().catch(() => ({}));
     throw new Error(error.error || "Signup failed");
   }
   return response.json();
@@ -22,7 +28,13 @@ export const login = async (credentials: any) => {
     body: JSON.stringify(credentials),
   });
   if (!response.ok) {
-    const error = await response.json();
+    if (response.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
+    }
+    const error = await response.json().catch(() => ({}));
     throw new Error(error.error || "Login failed");
   }
   return response.json();
@@ -39,7 +51,13 @@ export const updateSettings = async (settings: any) => {
     body: JSON.stringify(settings),
   });
   if (!response.ok) {
-    const error = await response.json();
+    if (response.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
+    }
+    const error = await response.json().catch(() => ({}));
     throw new Error(error.error || "Failed to update settings");
   }
   return response.json();
@@ -66,7 +84,13 @@ export const getIssues = async () => {
     },
   });
   if (!response.ok) {
-    const error = await response.json();
+    if (response.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
+    }
+    const error = await response.json().catch(() => ({}));
     throw new Error(error.error || "Failed to fetch issues");
   }
   return response.json();
@@ -83,7 +107,13 @@ export const createIssue = async (issueData: any) => {
     body: JSON.stringify(issueData),
   });
   if (!response.ok) {
-    const error = await response.json();
+    if (response.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
+    }
+    const error = await response.json().catch(() => ({}));
     throw new Error(error.error || "Failed to create issue");
   }
   return response.json();

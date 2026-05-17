@@ -8,6 +8,8 @@ export interface IIssue extends Document {
   linearUrl?: string;
   status?: string;
   priority?: number;
+  extractedCode?: string;
+  fixedCode?: string;
   metadata?: any;
   userId?: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -45,6 +47,12 @@ const IssueSchema: Schema = new Schema(
     priority: {
       type: Number,
       default: 0,
+    },
+    extractedCode: {
+      type: String,
+    },
+    fixedCode: {
+      type: String,
     },
     metadata: {
       type: Schema.Types.Mixed,
